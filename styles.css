@@ -1,0 +1,218 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
+}
+
+.container {
+    display: flex;
+    height: 100vh; /* Full height of the viewport */
+}
+
+.sidebar {
+    background: #3498db; /* Blue background */
+    color: #fff;
+    width: 200px; /* Set width for sidebar */
+    height: 100%; /* Full height for sidebar */
+    padding: 15px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    position: fixed; /* Keep the sidebar fixed while scrolling */
+    border-top-right-radius: 20px; /* Add curved effect */
+    border-bottom-right-radius: 20px; /* Add curved effect */
+}
+
+.sidebar h2 {
+    margin: 0;
+    text-align: center;
+    font-size: 22px; /* Increased font size */
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px; /* Padding for better click area */
+    transition: background 0.3s, transform 0.3s, color 0.3s;
+    font-size: 18px; /* Increased font size */
+    border-top-right-radius: 10px; /* Curved effect on the top right */
+    border-bottom-right-radius: 10px; /* Curved effect on the bottom right */
+}
+
+/* Hover effect for non-active links */
+.sidebar a:hover:not(.active) {
+    background: #1abc9c; /* Green shade on hover */
+    transform: scale(1.05);
+}
+
+.sidebar a.active {
+    background: #1abc9c; /* Highlight active link */
+    color: #fff; /* Ensure text remains white */
+}
+
+/* Prevent hover effect on active link */
+.sidebar a.active:hover {
+    background: #1abc9c; /* Keep the same background color when hovered */
+    transform: none; /* Remove scaling effect */
+}
+
+.main-content {
+    flex-grow: 1;
+    margin-left: 220px; /* Leave space for the sidebar, adjusted for padding */
+    padding: 20px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+h1 {
+    color: #2980b9;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.stat-box {
+    background: #3498db;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 200px;
+    text-align: center;
+    margin: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.stat-box h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.stat-box p {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on small screens */
+        height: auto; /* Auto height to fit content */
+        position: relative; /* Relative positioning for stacking */
+    }
+
+    .main-content {
+        margin-left: 0; /* No margin on small screens */
+        padding: 10px; /* Adjusted padding */
+    }
+
+    .stat-box {
+        width: 100%; /* Full width for stat boxes on small screens */
+        margin: 10px 0; /* Vertical margin for spacing */
+    }
+}
+
+/* Add this to your existing styles.css */
+
+form {
+    background: #ffffff; /* White background for the form */
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+form:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%; /* Full width */
+    padding: 10px;
+    margin-bottom: 15px; /* Space between fields */
+    border: 1px solid #ccc;
+    border-radius: 5px; /* Rounded corners */
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: #3498db; /* Change border color on focus */
+    outline: none; /* Remove default outline */
+}
+
+button {
+    background: #3498db; /* Button color */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background: #1abc9c; /* Change color on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.recent-deposits {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.recent-deposits th, .recent-deposits td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+.recent-deposits th {
+    background-color: #3498db; /* Header background color */
+    color: white; /* Header text color */
+}
+
+.recent-deposits tr:nth-child(even) {
+    background-color: #f2f2f2; /* Zebra striping for rows */
+}
+
+.deposit-entry {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9; /* Light background for entries */
+}
+
+.deposit-details {
+    font-size: 14px; /* Adjust font size for details */
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Cashout Chat - Casino Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Add styles for image previews */
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .image-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        #chat-box {
+            max-height: 400px; /* Limit the height of the chat box */
+            overflow-y: auto; /* Enable scrolling */
+            margin-bottom: 20px; /* Space below the chat box */
+        }
+        .message {
+            margin: 10px 0; /* Small gaps between messages */
+            padding: 10px; /* Padding for messages */
+            border-radius: 10px; /* Rounded corners */
+            max-width: 70%; /* Limit width of messages */
+            clear: both; /* Clear floats */
+        }
+        .message.user {
+            background-color: #1abc9c; /* Color for user's messages */
+            color: white; /* Text color for user's messages */
+            float: right; /* Align user's messages to the right */
+        }
+        .message.other {
+            background-color: #f1f1f1; /* Color for other users' messages */
+            color: black; /* Text color for other users' messages */
+            float: left; /* Align other users' messages to the left */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="index.html" class="link">Home</a></li>
+                <li><a href="dashboard.html" class="link">Dashboard</a></li>
+                <li><a href="games.html" class="link">Games Load</a></li>
+                <li><a href="deposit.html" class="link">Deposit</a></li>
+                <li><a href="recent_deposit.php" class="link">Recent Deposits</a></li>
+                <li><a href="freeplay_deposit.php" class="link">FreePlay Deposits</a></li>
+                <li><a href="freeplay_history.php" class="link">FreePlay History</a></li>
+                <li><a href="cashout.php" class="link">Cashout</a></li>
+                <li><a href="cashout_history.php" class="link">Cashout History</a></li>
+                <li><a href="reports.php" class="link">Reports</a></li>
+                <li><a href="settings.html" class="link">Settings</a></li>
+                <li><a href="cashout_chat.html" class="link active">Cashout Chat</a></li> <!-- Active link for Cashout Chat -->
+            </ul>
+        </nav>
+        <div class="main-content">
+            <h1>Cashout Chat</h1>
+            <div id="chat-box"></div>
+            <form id="chat-form" onsubmit="sendMessage(event)">
+                <input type="text" id="message" placeholder="Type your message..." required>
+                <input type="file" id="file-upload" accept="image/*" multiple>
+                <div class="image-preview" id="image-preview"></div> <!-- Preview container -->
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Get the current username from PHP
+        const currentUsername = "<?php echo $_SESSION['username']; ?>"; // Pass PHP variable to JS
+
+        // Function to send a message
+        async function sendMessage(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message');
+            const fileInput = document.getElementById('file-upload');
+            const message = messageInput.value;
+            const files = fileInput.files;
+
+            const formData = new FormData();
+            formData.append('message', message);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]); // Append each file
+            }
+
+            const response = await fetch('send_message.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                // Create a new message element
+                const newMessageDiv = document.createElement('div');
+                newMessageDiv.classList.add('message', 'user'); // Add user class
+                newMessageDiv.innerHTML = `<strong>${currentUsername}:</strong> ${message} ${files.length > 0 ? `<img src="${URL.createObjectURL(files[0])}" alt="Image" style="max-width: 100px;">` : ''}`;
+                
+                // Append the new message to the chat box
+                const chatBox = document.getElementById('chat-box');
+                chatBox.appendChild(newMessageDiv); // Append to the bottom
+
+                // Scroll to the bottom of the chat box
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Clear input fields
+                messageInput.value = ''; // Clear input
+                fileInput.value = ''; // Clear file input
+                document.getElementById('image-preview').innerHTML = ''; // Clear previews
+            } else {
+                alert(data.message);
+            }
+        }
+
+        // Function to fetch messages
+        async function fetchMessages() {
+            const response = await fetch('fetch_messages.php');
+            const messages = await response.json();
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = ''; // Clear existing messages
+
+            // Append messages in the order they are received
+            messages.forEach((msg) => {
+                const div = document.createElement('div');
+                div.classList.add('message'); // Add base message class
+                div.classList.add(msg.username === currentUsername ? 'user' : 'other'); // Check if the message is from the current user
+                div.innerHTML = `<strong>${msg.username}:</strong> ${msg.message} ${msg.file ? `<img src="${msg.file}" alt="Image" style="max-width: 100px;">` : ''}`;
+                chatBox.appendChild(div); // Append to the bottom
+            });
+
+            // Scroll to the bottom of the chat box after fetching messages
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Function to handle file input change and show previews
+        document.getElementById('file-upload').addEventListener('change', function() {
+            const previewContainer = document.getElementById('image-preview');
+            previewContainer.innerHTML = ''; // Clear previous previews
+            const files = this.files;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result; // Set the image source to the file's data URL
+                    previewContainer.appendChild(img); // Append the image to the preview container
+                }
+                reader.readAsDataURL(file); // Read the file as a data URL
+            }
+        });
+
+        // Polling to fetch messages every 2 seconds
+        setInterval(fetchMessages, 2000);
+    </script>
+</body>
+</html>

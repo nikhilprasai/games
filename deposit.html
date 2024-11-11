@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="index.html" class="link">Home</a></li>
+                <li><a href="dashboard.html" class="link">Dashboard</a></li>
+                <li><a href="games.html" class="link active">Games Load</a></li> <!-- Active link for current page -->
+                <li><a href="deposit.html" class="link active">Deposit</a></li>
+                <li><a href="recent_deposit.php" class="link">Recent Deposits</a></li>
+                <li><a href="freeplay_deposit.php" class="link">FreePlay Deposits</a></li>
+                <li><a href="freeplay_history.php" class="link">FreePlay History</a></li>
+                <li><a href="cashout.php" class="link active">Cashout</a></li>
+                <li><a href="cashout_history.php" class="link">Cashout History</a></li>
+                <li><a href="reports.php" class="link">Reports</a></li>
+                <li><a href="settings.html" class="link">Settings</a></li>
+
+                
+
+
+
+            </ul>
+        </nav>
+        <div class="main-content">
+            <h1>Deposit Funds</h1>
+            <form id="deposit-form" action="submit_deposit.php" method="POST">
+                <label for="fb-name">FB Name:</label>
+                <input type="text" id="fb-name" name="fb-name" required>
+
+                <label for="deposit-amount">Deposit Amount:</label>
+                <input type="number" id="deposit-amount" name="deposit-amount" required>
+
+                <label for="bonus-amount">Bonus Amount:</label>
+                <input type="number" id="bonus-amount" name="bonus-amount" required>
+
+                <label for="game">Game:</label>
+                <input type="text" id="game" name="game" required>
+
+                <button type="submit">Submit Deposit</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Check if the user is logged in
+        if (!sessionStorage.getItem('loggedIn')) {
+            alert('You are not logged in. Please log in.');
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+
+        // Function to check if the user's account is still valid
+        async function checkUserStatus() {
+            const response = await fetch('check_user_status.php'); // Endpoint to check user status
+            const data = await response.json();
+
+            if (!data.valid) {
+                alert('Your account has been terminated. You will be logged out.');
+                sessionStorage.removeItem('loggedIn'); // Clear session storage
+                window.location.href = 'login.html'; // Redirect to login page
+            }
+        }
+
+        // Check user status immediately
+        checkUserStatus();
+        // Optionally, start checking user status every 5 seconds
+        setInterval(checkUserStatus, 5000); // Check every 5 seconds
+    </script>
+</body>
+
+</html>

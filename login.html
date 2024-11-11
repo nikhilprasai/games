@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Casino Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #3498db, #1abc9c); /* Gradient background */
+            height: 100vh; /* Full height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0; /* Remove default margin */
+        }
+
+        .login-container {
+            background: white; /* White background for the form */
+            padding: 30px; /* Padding around the form */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Shadow effect */
+            width: 300px; /* Fixed width */
+            text-align: center; /* Center text */
+            animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+        }
+
+        h2 {
+            margin-bottom: 20px; /* Space below the heading */
+            color: #2980b9; /* Heading color */
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%; /* Full width */
+            padding: 10px; /* Padding inside the input */
+            margin: 10px 0; /* Margin between inputs */
+            border: 1px solid #ccc; /* Light border */
+            border-radius: 5px; /* Rounded corners */
+            transition: border-color 0.3s; /* Smooth border color transition */
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #3498db; /* Change border color on focus */
+            outline: none; /* Remove default outline */
+        }
+
+        label {
+            display: block; /* Block display for label */
+            margin: 10px 0; /* Margin for spacing */
+            font-size: 14px; /* Font size for label */
+        }
+
+        button {
+            background: #3498db; /* Button color */
+            color: white; /* Button text color */
+            padding: 10px; /* Padding for button */
+            border: none; /* Remove default border */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: background 0.3s, transform 0.3s; /* Smooth transition for background color and scale */
+            width: 100%; /* Full width */
+        }
+
+        button:hover {
+            background: #1abc9c; /* Change color on hover */
+            transform: scale(1.05); /* Slightly enlarge on hover */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Error message styling */
+        p {
+            color: red; /* Error message color */
+            margin: 10px 0; /* Margin for spacing */
+        }
+
+        /* Developer credit styling */
+        .developer-credit {
+            margin-top: 20px; /* Space above the credit */
+            font-size: 12px; /* Smaller font size */
+            color: #7f8c8d; /* Grey color for the credit */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <?php if (isset($_GET['error'])): ?>
+            <p><?php echo htmlspecialchars($_GET['error']); ?></p>
+        <?php endif; ?>
+        <form id="login-form" action="login.php" method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <label>
+                <input type="checkbox" name="remember" id="remember"> Remember Me
+            </label>
+            <button type="submit">Login</button>
+        </form>
+        <div class="developer-credit">Developed by Games Bond</div> <!-- Developer credit -->
+    </div>
+</body>
+</html>

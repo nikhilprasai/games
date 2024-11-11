@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>User Settings - Casino Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="index.html" class="link">Home</a></li>
+                <li><a href="dashboard.html" class="link">Dashboard</a></li>
+                <li><a href="games.html" class="link active">Games Load</a></li> <!-- Active link for current page -->
+                <li><a href="deposit.html" class="link">Deposit</a></li>
+                <li><a href="recent_deposit.php" class="link">Recent Deposits</a></li>
+                <li><a href="freeplay_deposit.php" class="link">FreePlay Deposits</a></li>
+                <li><a href="freeplay_history.php" class="link">FreePlay History</a></li>
+                <li><a href="cashout.php" class="link">Cashout</a></li>
+                <li><a href="cashout_history.php" class="link">Cashout History</a></li>
+                <li><a href="reports.php" class="link">Reports</a></li>
+                <li><a href="settings.html" class="link active">Settings</a></li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <h1>Create New User</h1>
+            <form id="create-user-form" onsubmit="createUser(event)">
+                <label for="new-username">Username:</label>
+                <input type="text" id="new-username" required>
+                <label for="new-password">Password:</label>
+                <input type="password" id="new-password" required>
+                <button type="submit">Create User</button>
+            </form>
+            <div id="message"></div> <!-- Message display -->
+
+            <h2>Existing Users</h2>
+            <ul id="user-list"></ul> <!-- List of users -->
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Check if the user is logged in and is an admin
+        const isAdmin = sessionStorage.getItem('role') === 'admin';
+        if (!sessionStorage.getItem('loggedIn') || !isAdmin) {
+            alert('Access denied. Only admin can view this page.');
+            window.location.href = 'index.html'; // Redirect to home page if not admin
+        }
+
+        // Fetch users on page load
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+
+        // Create User Function
+        async function createUser(event) {
+            event.preventDefault();
+            const username = document.getElementById('new-username').value;
+            const password = document.getElementById('new-password').value;
+
+            const response = await fetch('create_user.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            document.getElementById('message').innerText = data.message; // Display the message
+
+            if (data.success) {
+                document.getElementById('create-user-form').reset();
+                fetchUsers(); // Refresh the user list
+            } else {
+                // Optionally handle error messages here
+                alert(data.message); // Show error message if user creation fails
+            }
+        }
+
+        // Fetch Users Function
+        async function fetchUsers() {
+            const response = await fetch('fetch_users.php');
+            const users = await response.json();
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = '';
+
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.innerText = user.username;
+
+                // Edit button
+                li.innerHTML += `
+                    <button onclick="editUser('${user.username}')">Edit</button>
+                    <button onclick="deleteUser('${user.username}')">Delete</button>
+                `;
+                userList.appendChild(li);
+            });
+        }
+
+        // Edit User Function
+        async function editUser(username) {
+            const newUsername = prompt("Enter new username:", username);
+            const newPassword = prompt("Enter new password:");
+
+            if (newUsername && newPassword) {
+                const response = await fetch('edit_user.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ oldUsername: username, newUsername, newPassword })
+                });
+                const data = await response.json();
+                alert(data.message);
+                fetchUsers(); // Refresh the user list
+            }
+        }
+
+      // Delete User Function
+    async function deleteUser(username) {
+        const confirmation = confirm(`Are you sure you want to delete user: ${username}?`);
+        if (confirmation) {
+            const response = await fetch('delete_user.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username })
+            });
+            const data = await response.json();
+            alert(data.message); // Show the message from the server
+            if (data.success) {
+                fetchUsers(); // Refresh the user list
+                if (data.logout) {
+                    // If the deleted user is the logged-in user, log them out
+                    sessionStorage.removeItem('loggedIn');
+                    alert('Your account has been terminated. You will be logged out.');
+                    window.location.href = 'login.html'; // Redirect to login page
+                }
+            }
+        }
+    }
+
+      // Polling function to check user status
+    async function checkUserStatus() {
+        const response = await fetch('check_user_status.php');
+        const data = await response.json();
+
+        if (!data.valid) {
+            alert('Your account has been terminated. You will be logged out.');
+            sessionStorage.removeItem('loggedIn'); // Clear session storage
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+    }
+
+    // Start checking user status every 5 seconds
+    setInterval(checkUserStatus, 5000); // Check every 5 seconds
+
+    // Delete User Function
+    async function deleteUser(username) {
+        const confirmation = confirm(`Are you sure you want to delete user: ${username}?`);
+        if (confirmation) {
+            const response = await fetch('delete_user.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username })
+            });
+            const data = await response.json();
+            alert(data.message); // Show the message from the server
+            if (data.success) {
+                fetchUsers(); // Refresh the user list
+                if (data.logout) {
+                    // If the deleted user is the logged-in user, log them out
+                    sessionStorage.removeItem('loggedIn');
+                    alert('Your account has been terminated. You will be logged out.');
+                    window.location.href = 'login.html'; // Redirect to login page
+                }
+            }
+        }
+    }
+    </script>
+</body>
+</html>

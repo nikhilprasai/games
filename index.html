@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            animation: fadeIn 0.3s; /* Animation for the modal */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Check if the user is logged in
+        if (!sessionStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html'; // Redirect to login if not logged in
+        }
+    </script>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="index.html" class="link active">Home</a></li>
+                <li><a href="dashboard.html" class="link">Dashboard</a></li>
+                <li><a href="cashout_chat.html" class="link">Cashout Chat</a></li> <!-- New link for Cashout Chat -->
+                <li><a href="games.html" class="link">Games Load</a></li>
+                <li><a href="deposit.html" class="link">Deposit</a></li>
+                <li><a href="recent_deposit.php" class="link">Recent Deposits</a></li>
+                <li><a href="freeplay_deposit.php" class="link">FreePlay Deposits</a></li>
+                <li><a href="freeplay_history.php" class="link">FreePlay History</a></li>
+                <li><a href="cashout.php" class="link active">Cashout</a></li>
+                <li><a href="cashout_history.php" class="link">Cashout History</a></li>
+                <li><a href="reports.php" class="link">Reports</a></li>
+                <li><a href="settings.html" class="link">Settings</a></li>
+                <li><a href="#" id="logout-link" class="link">Logout</a></li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <h1>Welcome to the Casino Management System</h1>
+            <p>Select an option from the menu to get started.</p>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Confirmation</h2>
+            <p>Do you really want to logout?</p>
+            <button id="confirmLogout">Yes</button>
+            <button id="cancelLogout">No</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Check if the user is logged in using sessionStorage or cookies
+        if (!sessionStorage.getItem('loggedIn') && !document.cookie.includes('rememberMe=true')) {
+            window.location.href = 'login.html'; // Redirect to login if not logged in
+        } else {
+            // If the user is remembered, set sessionStorage
+            if (document.cookie.includes('rememberMe=true')) {
+                sessionStorage.setItem('loggedIn', 'true');
+            }
+        }
+
+        // Logout Confirmation Modal Functionality
+        document.getElementById('logout-link').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link action
+            document.getElementById('logoutModal').style.display = "block"; // Show the modal
+        });
+
+        // Close the modal when the user clicks on <span> (x)
+        document.getElementById('closeModal').onclick = function() {
+            document.getElementById('logoutModal').style.display = "none";
+        }
+
+        // When the user clicks on "No", close the modal
+        document.getElementById('cancelLogout').onclick = function() {
+            document.getElementById('logoutModal').style.display = "none";
+        }
+
+        // When the user clicks on "Yes", redirect to logout.php
+        document.getElementById('confirmLogout').onclick = function() {
+            window.location.href = 'logout.php'; // Redirect to logout
+        }
+
+        // Close the modal if the user clicks anywhere outside of the modal
+        window.onclick = function(event) {
+            const modal = document.getElementById('logoutModal');
+            if (event.target == modal) {
+                modal.style.display = "none"; // Close the modal
+            }
+        }
+    </script>
+      <script>
+        // Check if the user is logged in
+        if (!sessionStorage.getItem('loggedIn')) {
+            alert('You are not logged in. Please log in.');
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+
+        // Function to check if the user's account is still valid
+        async function checkUserStatus() {
+            const response = await fetch('check_user_status.php'); // Endpoint to check user status
+            const data = await response.json();
+
+            if (!data.valid) {
+                alert('Your account has been terminated. You will be logged out.');
+                sessionStorage.removeItem('loggedIn'); // Clear session storage
+                window.location.href = 'login.html'; // Redirect to login page
+            }
+        }
+
+        // Check user status immediately
+        checkUserStatus();
+        // Optionally, start checking user status every 5 seconds
+        setInterval(checkUserStatus, 5000); // Check every 5 seconds
+    </script>
+</body>
+</html>

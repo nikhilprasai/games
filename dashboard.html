@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <style>
+        .profit-loss {
+            font-size: 1.5em;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease; /* Animation for background color */
+        }
+        .profit {
+            background-color: #d4edda; /* Light green background for profit */
+            color: green;
+        }
+        .loss {
+            background-color: #f8d7da; /* Light red background for loss */
+            color: red;
+        }
+        .stat-box {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px;
+            text-align: center;
+            transition: background-color 0.3s ease; /* Animation for background color */
+        }
+        #myChart {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .date-picker-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            background-color: #f9f9f9; /* Light background for the card */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+            transition: transform 0.3s; /* Animation for hover effect */
+        }
+        .date-picker-container:hover {
+            /* Remove the scaling effect */
+            /* transform: scale(1.02); */ /* Slightly enlarge on hover */
+        }
+        .date-picker-container label {
+            margin-right: 10px;
+            font-weight: bold; /* Bold labels */
+        }
+        .date-picker-container select,
+        .date-picker-container input {
+            margin-right: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s; /* Transition for border color */
+        }
+        .date-picker-container select:focus,
+        .date-picker-container input:focus {
+            border-color: #007bff; /* Change border color on focus */
+            outline: none; /* Remove default outline */
+        }
+        .fetch-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s; /* Transition for button */
+        }
+        .fetch-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-2px); /* Lift effect on hover */
+        }
+        .fetch-button:active {
+            transform: translateY(0); /* Reset lift effect on click */
+        }
+        /* Additional styles for the dashboard */
+        .stat-box {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px;
+            text-align: center;
+            transition: background-color 0.3s ease; /* Animation for background color */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="index.html" class="link">Home</a></li>
+                <li><a href="dashboard.html" class="link active">Dashboard</a></li>
+                <li><a href="games.html" class="link active">Games Load</a></li> <!-- Active link for current page -->
+                <li><a href="deposit.html" class="link">Deposit</a></li>
+                <li><a href="recent_deposit.php" class="link">Recent Deposits</a></li>
+                <li><a href="freeplay_deposit.php" class="link">FreePlay Deposits</a></li>
+                <li><a href="freeplay_history.php" class="link">FreePlay History</a></li>
+                <li><a href="cashout.php" class="link active">Cashout</a></li>
+                <li><a href="cashout_history.php" class="link">Cashout History</a></li>
+                <li><a href="reports.php" class="link">Reports</a></li>
+                <li><a href="settings.html" class="link">Settings</a></li>
+
+                
+            </ul>
+        </nav>
+        <div class="main-content">
+            <h1>Dashboard</h1>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <h2>Total Deposits</h2>
+                    <p id="total-deposits">$0</p>
+                </div>
+                <div class="stat-box">
+                    <h2>Total Cashout</h2>
+                    <p id="total-wins">$0</p>
+                </div>
+                <div class="stat-box">
+                    <h2>Total Freeplay</h2>
+                    <p id="total-freeplay">$0</p>
+                </div>
+                <div class="stat-box">
+                    <h2>Total Bonus</h2>
+                    <p id="total-bonus">$0</p>
+                </div>
+                <div class="stat-box profit-loss" id="profit-loss">Profit/Loss: $0</div> <!-- New profit/loss box -->
+            </div>
+            <div class="date-picker-container">
+                <label for="year-picker">Select Year:</label>
+                <select id="year-picker">
+                    <script>
+                        const currentYear = new Date().getFullYear();
+                        for (let i = currentYear; i >= 2000; i--) {
+                            document.write(`<option value="${i}">${i}</option>`);
+                        }
+                    </script>
+                </select>
+                <label for="month-picker">Select Month:</label>
+                <input type="month" id="month-picker" value="<?= date('Y-m'); ?>">
+                <label for="day-picker">Select Day:</label>
+                <input type="number" id="day-picker" min="1" max="31" placeholder="Day (1-31)">
+                <select id="download-format">
+                    <option value="excel">Download as Excel</option>
+                    <option value="pdf">Download as PDF</option>
+                </select>
+                <button class="fetch-button" onclick="downloadData()">Download Data</button>
+            </div>
+            <canvas id="myChart"></canvas> <!-- Chart canvas -->
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        let myChart;
+
+        // Function to fetch totals and update the dashboard
+        function fetchTotals() {
+            fetch('get_totals.php')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-deposits').textContent = `$${data.total_deposits}`;
+                    document.getElementById('total-wins').textContent = `$${data.total_wins}`;
+                    document.getElementById('total-freeplay').textContent = `$${data.total_freeplay}`;
+                    document.getElementById('total-bonus').textContent = `$${data.total_bonus}`;
+
+                    // Calculate profit or loss
+                    const totalDeposits = parseFloat(data.total_deposits);
+                    const totalWins = parseFloat(data.total_wins);
+                    const profitLossElement = document.getElementById('profit-loss');
+
+                    if (totalDeposits > totalWins) {
+                        const profitAmount = totalDeposits - totalWins;
+                        profitLossElement.textContent = `Profit: $${profitAmount.toFixed(2)}`;
+                        profitLossElement.className = 'stat-box profit-loss profit'; // Set class for profit
+                    } else {
+                        const lossAmount = totalWins - totalDeposits;
+                        profitLossElement.textContent = `Loss: $${lossAmount.toFixed(2)}`;
+                        profitLossElement.className = 'stat-box profit-loss loss'; // Set class for loss
+                    }
+                })
+                .catch(error => console.error('Error fetching totals:', error));
+        }
+
+        // Function to fetch monthly data for the chart
+        function fetchMonthlyData() {
+            const month = document.getElementById('month-picker').value.split('-')[1]; // Get month from input
+            const year = document.getElementById('year-picker').value; // Get year from select
+            fetch(`get_monthly_data.php?month=${month}&year=${year}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Check if there are any deposits or wins
+                    if (data.total_deposits === 0 && data.total_wins === 0) {
+                        // Reset totals to zero
+                        document.getElementById('total-deposits').textContent = `$0`;
+                        document.getElementById('total-wins').textContent = `$0`;
+                        document.getElementById('total-freeplay').textContent = `$0`;
+                        document.getElementById('total-bonus').textContent = `$0`;
+                        document.getElementById('profit-loss').textContent = `Profit/Loss: $0`;
+                        document.getElementById('profit-loss').className = 'stat-box profit-loss'; // Reset class
+                    } else {
+                        // Update totals with fetched data
+                        document.getElementById('total-deposits').textContent = `$${data.total_deposits}`;
+                        document.getElementById('total-wins').textContent = `$${data.total_wins}`;
+                        document.getElementById('total-freeplay').textContent = `$${data.total_freeplay}`;
+                        document.getElementById('total-bonus').textContent = `$${data.total_bonus}`;
+
+                        // Calculate profit or loss
+                        const totalDeposits = parseFloat(data.total_deposits);
+                        const totalWins = parseFloat(data.total_wins);
+                        const profitLossElement = document.getElementById('profit-loss');
+
+                        if (totalDeposits > totalWins) {
+                            const profitAmount = totalDeposits - totalWins;
+                            profitLossElement.textContent = `Profit: $${profitAmount.toFixed(2)}`;
+                            profitLossElement.className = 'stat-box profit-loss profit'; // Set class for profit
+                        } else {
+                            const lossAmount = totalWins - totalDeposits;
+                            profitLossElement.textContent = `Loss: $${lossAmount.toFixed(2)}`;
+                            profitLossElement.className = 'stat-box profit-loss loss'; // Set class for loss
+                        }
+                    }
+                    updateChart(data.labels, data.deposits, data.wins);
+                })
+                .catch(error => console.error('Error fetching monthly data:', error));
+        }
+
+        // Function to update the chart
+        function updateChart(labels, deposits, wins) {
+            if (myChart) {
+                myChart.destroy(); // Destroy the previous chart instance
+            }
+            myChart = new Chart(ctx, {
+                type: 'line', // Change to 'bar' if you prefer a bar chart
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Deposits',
+                            data: deposits,
+                            borderColor: 'green',
+                            backgroundColor: 'rgba(0, 255, 0, 0.2)',
+                            fill: true,
+                        },
+                        {
+                            label: 'Total Wins',
+                            data: wins,
+                            borderColor: 'red',
+                            backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                            fill: true,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch totals every 5 seconds
+        setInterval(fetchTotals, 5000);
+        // Initial fetch
+        fetchTotals();
+
+        function downloadData() {
+            const month = document.getElementById('month-picker').value.split('-')[1]; // Get month from input
+            const year = document.getElementById('year-picker').value; // Get year from select
+            const day = document.getElementById('day-picker').value; // Get day from input
+            const format = document.getElementById('download-format').value; // Get selected format
+
+            // Redirect to the export script with the selected parameters
+            window.location.href = `export_data.php?month=${month}&year=${year}&day=${day}&format=${format}`; // Include day in the URL
+        }
+    </script>
+      <script>
+        // Check if the user is logged in
+        if (!sessionStorage.getItem('loggedIn')) {
+            alert('You are not logged in. Please log in.');
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+
+        // Function to check if the user's account is still valid
+        async function checkUserStatus() {
+            const response = await fetch('check_user_status.php'); // Endpoint to check user status
+            const data = await response.json();
+
+            if (!data.valid) {
+                alert('Your account has been terminated. You will be logged out.');
+                sessionStorage.removeItem('loggedIn'); // Clear session storage
+                window.location.href = 'login.html'; // Redirect to login page
+            }
+        }
+
+        // Check user status immediately
+        checkUserStatus();
+        // Optionally, start checking user status every 5 seconds
+        setInterval(checkUserStatus, 5000); // Check every 5 seconds
+    </script>
+</body>
+</html>
